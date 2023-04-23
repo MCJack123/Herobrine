@@ -1,9 +1,7 @@
 
 -- Made by Xella#8655
 
-local arg = ...
-local libFolder = arg:match("(.-)[^%.]+$")
-local betterblittle = require(libFolder .. "betterblittle")
+local betterblittle = require("betterblittle")
 
 local colorChar = {}
 for i = 1, 16 do

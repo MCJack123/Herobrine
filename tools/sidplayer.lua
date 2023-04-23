@@ -1,6 +1,5 @@
 local M6502 = require "M6502"
 local SID = require "sid"
-local profiler = require "profiler"
 
 term.clear()
 term.setCursorPos(1, 1)
@@ -85,7 +84,6 @@ function cpu:write(addr, val)
                 win.write(("       %X %X %X %X"):format(sid[1].voice[channel].envelope.attack, sid[1].voice[channel].envelope.decay, sid[1].voice[channel].envelope.sustain, sid[1].voice[channel].envelope.release))
             end
         end
-    elseif addr == 0xD40A then print("punt!")
     else
         mem[addr] = val
     end
@@ -102,24 +100,14 @@ local n = 0
 local data = {}
 os.queueEvent("speaker_audio_empty", peripheral.getName(speaker))
 while true do
-    local cputime, sidtime = 0, 0
-    sid[1].wavetime, sid[1].envtime, sid[1].filtertime, sid[1].extfilttime = 0, 0, 0, 0
     while #data < 48000 do
         cpu.state.pc = 0
-        local start = os.epoch "utc"
         cpu:call(playAddress, 19705)
-        cputime = cputime + (os.epoch "utc" - start)
-        start = os.epoch "utc"
-        if n == 1 and #data == 0 then profiler.start() end
         sid[1]:clock(cpufreq / 50, data, #data + 1, 48000)
-        sidtime = sidtime + (os.epoch "utc" - start)
-        profiler.stop()
     end
     for i = 1, #data do data[i] = math.floor(data[i] / 256) end
-    print(cputime, sidtime, math.floor(sid[1].wavetime / 1000000), math.floor(sid[1].envtime / 1000000), math.floor(sid[1].filtertime / 1000000), math.floor(sid[1].extfilttime / 1000000))
     os.pullEvent("speaker_audio_empty")
     speaker.playAudio(data, 3)
-    if n == 1 then profiler.report("profiler.log") end
     data = {}
     n = n + 1
 end
