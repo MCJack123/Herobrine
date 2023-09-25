@@ -95,7 +95,7 @@ win.clear()
 frame:setBackgroundColor(colors.black)
 frame:setCamera(-15, 8, 0, 0, 0, -30)
 frame:setFoV(60)
-local obj = frame:newObject(util.loadCompressedModel("models/c64.cob"), 0, 0, 0)
+local obj = frame:newObject(util.loadCompressedModel("/models/c64.cob"), 0, 0, 0)
 local w = math.floor((time - 2) * 40)
 -- [[
 for i = 1, w, 2 do

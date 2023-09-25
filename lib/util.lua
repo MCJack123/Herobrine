@@ -2,6 +2,9 @@ local Pine3D = require "Pine3D"
 local util = {}
 
 local hsidx = 1
+local k1, k2, k3
+if _HOST >= "ComputerCraft 1.106" then k1, k2, k3 = 1, 2, 3
+else k1, k2, k3 = "text", "textColor", "backgroundColor" end
 function util.hscroller(win)
     local k, tLines = debug.getupvalue(win.getLine, hsidx)
     while k ~= "tLines" do
@@ -18,16 +21,16 @@ function util.hscroller(win)
         end
         if cols >= 1 then
             for y = 1, #tLines do
-                tLines[y].text = tLines[y].text:sub(cols + 1) .. rs[y][1]
-                tLines[y].textColor = tLines[y].textColor:sub(cols + 1) .. rs[y][2]
-                tLines[y].backgroundColor = tLines[y].backgroundColor:sub(cols + 1) .. rs[y][3]
+                tLines[y][k1] = tLines[y][k1]:sub(cols + 1) .. rs[y][1]
+                tLines[y][k2] = tLines[y][k2]:sub(cols + 1) .. rs[y][2]
+                tLines[y][k3] = tLines[y][k3]:sub(cols + 1) .. rs[y][3]
             end
             win.redraw()
         elseif cols <= -1 then
             for y = 1, #tLines do
-                tLines[y].text = rs[y][1] .. tLines[y].text:sub(1, cols - 1)
-                tLines[y].textColor = rs[y][2] .. tLines[y].textColor:sub(1, cols - 1)
-                tLines[y].backgroundColor = rs[y][3] .. tLines[y].backgroundColor:sub(1, cols - 1)
+                tLines[y][k1] = rs[y][1] .. tLines[y][k1]:sub(1, cols - 1)
+                tLines[y][k2] = rs[y][2] .. tLines[y][k2]:sub(1, cols - 1)
+                tLines[y][k3] = rs[y][3] .. tLines[y][k3]:sub(1, cols - 1)
             end
             win.redraw()
         end
@@ -64,10 +67,10 @@ function util.maskwin(win, mask)
         local tLineWin = tLinesWin[n]
         parent.setCursorPos(nX, nY + n - 1)
         parent.blit(
-            tLine.text:gsub("()%z+()", function(x, y) return tLineWin.text:sub(x, y-1) end),
-            tLine.textColor:gsub("()%z+()", function(x, y) return tLineWin.textColor:sub(x, y-1) end)
-                :gsub("()\1+()", function(x, y) return tLineWin.backgroundColor:sub(x, y-1) end),
-            tLine.backgroundColor:gsub("()%z+()", function(x, y) return tLineWin.backgroundColor:sub(x, y-1) end))
+            tLine[k1]:gsub("()%z+()", function(x, y) return tLineWin[k1]:sub(x, y-1) end),
+            tLine[k2]:gsub("()%z+()", function(x, y) return tLineWin[k2]:sub(x, y-1) end)
+                :gsub("()\1+()", function(x, y) return tLineWin[k3]:sub(x, y-1) end),
+            tLine[k3]:gsub("()%z+()", function(x, y) return tLineWin[k3]:sub(x, y-1) end))
     end
     -- Now we go fishing for all redrawLine upvalues
     k, internalBlit = debug.getupvalue(mask.blit, internalBlitidx)
